@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--4eff+dw86h7rds644yciia=wb6w*fr2c=-m65p*z1c3mk!0u#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -130,3 +130,4 @@ STRIPE_SECRET_KEY = 'sk_test_51Ss9ju2IjldB7av8KQPDdH4IaKKmUmUO6gscUv388Fby2bwapU
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'game_list'
+
