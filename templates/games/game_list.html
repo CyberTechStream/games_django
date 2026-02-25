@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+
+<div class="container">
+    <h1>Список ігор</h1>
+
+
+    <form method="get" class="mb-4" action="{% url 'game_list' %}" id="filter-form">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Пошук">
+            </div>
+
+
+            <div class="col-md-4">
+                <select name="genre" class="form-control">
+                    <option value="">Всі жанри</option>
+                    {% for g in genres %}
+                    <option value="{{ g }}" {% if selected_genre == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary">Фільтр</button>
+            </div>
+        </div>
+
+
+    </form>
+
+
+    <div id="game-container">
+        {% include 'games/game_list_content.html' %}
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        const container = document.getElementById("game-container");
+        const filterForm = document.getElementById("filter-form");
+
+
+        function updateGameList(url) {
+            fetch(url, {
+                method: "GET",
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Network error")
+                return response.text()
+            })
+            .then(html => {
+                container.innerHTML = html;
+
+
+                window.history.pushState(null, '', url)
+
+
+                console.log("Updated");
+            })
+            .catch(error => {
+                console.log("error: ", error);
+            });
+        }
+
+
+
+
+        if (container) {
+            container.addEventListener("click", function(e){
+                const link = e.target.closest('a')
+
+
+                if (link && link.closest('.pagination')) {
+                    e.preventDefault();
+                    updateGameList(link.href)
+                }
+            })
+        }
+
+
+        if (filterForm) {
+            filterForm.addEventListener("submit", function(e){
+                e.preventDefault();
+                const formData = new FormData(filterForm)
+                const params = new URLSearchParams(formData)
+
+
+                const url = window.location.pathname + "?" + params.toString()
+                updateGameList(url)
+            })
+        }
+
+
+        const genreSelect = document.querySelector('select[name="genre"]');
+        if (genreSelect) {
+            genreSelect.addEventListener("change", function(){
+                filterForm.dispatchEvent(new Event("submit"))
+            })
+        }
+
+
+        window.addEventListener('popstate', function() {
+            updateGameList(window.location.href)
+        })
+
+
+    })
+
+
+</script>
+
+
+<style>
+    .steam-card {
+        background-color: #16202d;
+        transition: transform 0.2s, background-color 0.2s;
+        border: 1px solid rgba(0,0,0,0);
+    }
+
+
+    .steam-card:hover {
+        background-color: #2a475e;
+        transform: scale(1.01);
+    }
+
+
+    .steam-card-img img {
+        width: 120px;
+        height: 69px;
+        object-fit: cover;
+    }
+
+
+    .discount-badge {
+        background-color: #4c6b22;
+        color: #beee11;
+        padding: 4px 6px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+
+    .text-success {
+        color: #beee11 !important;
+    }
+</style>
+
+
+{% endblock %}

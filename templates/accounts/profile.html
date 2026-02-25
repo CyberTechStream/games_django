@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row g-4">
+   <div class="col-lg-3">
+        <div class="profile-card text-center p-3 rounded shadow-sm">
+            <div class="position-relative d-inline-block mb-3">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" class="avatar-img">
+                {% else %}
+                    <img class="avatar-img" src="https://static.vecteezy.com/system/resources/previews/047/733/682/non_2x/grey-avatar-icon-user-avatar-photo-icon-social-media-user-icon-vector.jpg" alt="">
+                {% endif %}
+            </div>
+
+            <h3 class="text-white mb-1">{{ profile.nickname }}</h3>
+
+            <p class="text-muted small mb-3">{{ profile.status|upper }}</p>
+
+            <a href="{% url 'edit_profile' %}" class="btn btn-outline-success btn-sm w-100 mb-2">
+                <i class="fa-solid fa-pen-to-square"></i>Редагувати
+            </a>
+
+        </div>
+   </div>
+
+   <div class="col-lg-9">
+        <div class="section-card p-4 mb-4">
+            <h5 class="section-title"><i class="fa-solid fa-address-card me-2"></i>Про мене</h5>
+            <p class="bio-text">
+                {{ profile.bio|default:"Опис відсутній" }}
+            </p>
+        </div>
+
+        <div class="section-card p-4 mb-4">
+            <h5 class="section-title d-flex justify-content-between">
+                <span><i class="fa-solid fa-gamepad me-2"></i>Бібліотека</span>
+                <span class="badge bg-primary rounded-pill">{{ games|length }}</span>
+            </h5>
+            <div class="row mt-3">
+                {% for item in games %}
+                    <div class="col-md-4 mb-3">
+                        <div class="game-item-card h-100">
+                            <div class="game-info">
+                                <span class="game-title">{{ item.game.title }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 bio-text">Ігор ще немає в колекції</div>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <div class="section-card p-4">
+            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active btn-sm" data-bs-toggle="pill" data-bs-target="#friends">
+                    Друзі ({{ friends|length }})
+                    </button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-link btn-sm position-relative" data-bs-toggle="pill" data-bs-target="#requests">
+                    Запити
+                    {% if incoming_requests %}
+                        <span class="position-absolute translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                    {% endif %}
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-2">
+                <div class="tab-pane fade show active" id="friends">
+                    <div class="list-group list-group-flush">
+                        {% for item in friends %}
+                            {% with friend=item.friend.profile %}
+                                <div class="list-group-item bg-transparent border-secondary d-flex align-items-center justify-content-between px-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="mini-avatar me-3 {% if friend.is_online %}online{% endif %}">
+                                        </div>
+                                        <span class="text-white">{{ friend.nickname }}</span>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'chat' item.friend.id %}" class="btn btn-sm btn-nav-action me-2"><i class="fa-solid fa-comment"></i></a>
+                                        <a href="{% url 'remove_friend' item.friend.id %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-user-minus"></i></a>
+                                    
+                                    </div>
+                                </div> 
+
+                            {% endwith %}
+
+                        {% empty %}
+                            <p class="text-secondary">Список друзів порожній</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="requests">
+                    <h6 class="text-info mb-3">Вхідні запити</h6>
+                    {% for r in incoming_requests %}
+                        <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dark rounded">
+                            <span>{{ r.sender.username }}</span>
+
+                            <div>
+                                <a href="{% url 'accept_friend_request' r.id %}" class="btn btn-sm btn-success"><i class="fa-solid fa-check"></i></a>
+                                <a href="{% url 'reject_friend_request' r.id %}" class="btn btn-sm btn-danger"><i class="fa-solid fa-xmark"></i></a>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-secondary">Немає запитів</p>
+                    {% endfor %}
+
+                    <h6 class="text-warning mt-3 mb-3">Відправлені запити</h6>
+                    {% for r in outcoming_requests %}
+                        <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dark rounded">
+                            <span>{{ r.receiver.username }}</span>
+
+                            <div>
+                                <a href="{% url 'cancel_friend_request' r.id %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-ban me-1"></i></a>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-secondary">Немає відправлених запитів</p>
+                    {% endfor %}
+
+                </div>
+
+                <div class="tab-pane fade" id="find-user">
+                    <div class="row">
+                        {% for u in users %}
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-2 rounded border border-secondary">
+                                    <span>{{ u.username }}</span>
+                                    <a href="{% url 'send_friend_request' u.id %}" class="btn btn-sm btn-primary py-0">Додати</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+
+
+
+        </div>
+
+   </div>
+
+</div>
+
+
+
+<style>
+    .profile-card, .section-card {
+        background: #171d25;
+        border: 1px solid #2a475e;
+        border-radius: 4px;
+    }
+
+
+    .section-title {
+        color: #66c0f4;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        border-bottom: 1px solid #2a475e;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+
+    .avatar-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 4px;
+        padding: 4px;
+    }
+    .border-status-online { background: linear-gradient(to bottom, #54a5d4, #126291); }
+    .border-status-offline { background: #4a5965; }
+
+
+    .status-indicator {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        border: 2px solid #171d25;
+    }
+    .status-online { background-color: #57cbde; box-shadow: 0 0 10px #57cbde; }
+    .status-offline { background-color: #898989; }
+
+
+    .game-item-card {
+        background: rgba(0, 0, 0, 0.3);
+        border-left: 3px solid #66c0f4;
+        padding: 10px;
+        transition: 0.3s;
+    }
+    .game-item-card:hover { background: rgba(102, 192, 244, 0.1); }
+    .game-title { color: #c7d5e0; font-size: 0.95rem; font-weight: 500; }
+
+
+    .nav-pills .nav-link { color: #8daab9; }
+    .nav-pills .nav-link.active { background-color: #2a475e; color: #fff; }
+   
+    .btn-nav-action { background: #2a475e; color: #c7d5e0; }
+    .btn-nav-action:hover { background: #66c0f4; color: #fff; }
+
+
+    .mini-avatar {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        background: #4a5965;
+    }
+    .mini-avatar.online { background: #57cbde; }
+    .bio-text { color: #acb2b8; line-height: 1.6; }
+</style>
+
+{% endblock %}
+
+

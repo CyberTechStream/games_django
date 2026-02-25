@@ -1,0 +1,391 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+
+
+
+<div class="container mt-4 steam-container">
+
+
+    <div class="mb-3">
+        <h2>{{ game.title }}</h2>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div id="gameCarousel" class="carousel slide" data-bs-ride="carousel">
+
+
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#gameCarousel" data-bs-slide-to="0" class="active"></button>
+                   
+                    {% for screen in game.screenshots.all %}
+                    <button type="button" data-bs-target="#gameCarousel"
+                        data-bs-slide-to="{{ forloop.counter }}"></button>
+                    {% endfor %}
+                </div>
+
+
+                <div class="carousel-inner">
+
+
+                    <div class="carousel-item active">
+                         <!-- Дописати тег картинки  -->
+                        {% if game.image %}
+                            <img src="{{ game.image.url }}" alt="{{ game.title }}" class="d-block w-100">
+                        {% else %}
+                            <div class="bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 400px;">
+                                <span>No Image</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+										
+                     <!-- Дописати скріни  -->
+                    {% for screen in game.screenshots.all %}
+                    <div class="carousel-item">
+                        <img src="{{ screen.image.url }}" class="d-block w-100">
+
+                    </div>
+                    {% endfor %}
+
+
+                </div>
+
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#gameCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#gameCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="card border-0" style="background: transparent;">
+                <!-- Дописати тег картинки і опис -->
+                {% if game.image %}
+                    <img src="{{ game.image.url }}" alt="header" class="game-header-image">
+                {% endif %}
+
+                <div class="glance-datils mt-2">
+                    <p class="mb-1">{{ game.description|truncatewords:20 }}</p>
+                    <br>
+                    <div class="d-flex justify-content-between">
+                        <div><b>Рік:</b></div>
+                        <div>{{ game.release_year }}</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <div><b>Жанр:</b></div>
+                        <div>{{ game.genre }}</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <div><b>Рейтинг:</b></div>
+                        <div>{{ game.rating }}</div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="game_area_purchase_game d-flex flex-wrap">
+        <h1 class="me-auto p-2">Купити {{ game.title }}</h1>
+
+
+        <div class="d-flex align-items-center p-2">
+            <div class="game_purchase_action">
+                <!-- Блок покупки зі знижкою -->
+                {% if game.discount > 0 %}
+                    <div class="discount_block">-{{ game.discount }}</div>
+                    <div class="price">
+                        <div class="original-price">{{ game.price }} грн.</div>
+                        <div class="final-price text-success">{{ game.sell_price|floatformat:2 }} грн.</div>
+                    </div>
+                {% else %}
+                    <div class="price text-end ps-3 pe-3">
+                        <div class="final-price">
+                            {% if game.price == 0 %}Free{% else %}{{ game.price }} грн.{% endif %}
+                        </div>
+                    </div>
+                    <!-- кнопка кошик -->
+                    <a href="{% url 'add_to_cart' game.id %}" class="btn btn-steam-green">Додати в кошик</a>
+                {% endif %}
+
+               
+            </div>
+        </div>
+
+
+        <div class="w-100 text-end mt-2">
+            <button class="btn btn-sm btn-secondary" style="background-color: #2a475e; border: none;"
+                onclick="addToFavorites({{ game.id }})">
+                <i class="fa fa-star"></i> Додати до списку бажаного
+            </button>
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <h4>Про цю гру</h4>
+            <hr style="border-color: #3f5d7d;">
+            <p>{{ game.description }}</p>
+        </div>
+    </div>
+
+
+    <div class="row mt-5">
+        <div class="col-md-8">
+            <h4>Відгуки користувачів</h4>
+            <hr style="border-color: #3f5d7d;">
+
+
+            {% for review in reviews %}
+            <div class="review_box p-3 mb-3">
+                <div class="d-flex justify-content-between">
+                    <small class="text-secondary">Оцінка: <span class="text-white">{{ review.rating }}/5</span></small>
+                </div>
+                <p class="mt-2 mb-0">{{ review.text }}</p>
+            </div>
+            {% empty %}
+            <p class="text-muted">Поки немає відгуків. Будьте першим!</p>
+            {% endfor %}
+
+
+            <div class="card p-4 mt-4" style="background-color: #1b2838; border: 1px solid #2a475e;">
+                <h5 class="mb-3">Написати відгук</h5>
+                <form method="post">
+                    {% csrf_token %}
+
+
+                    <div class="mb-3">
+                        <label class="form-label">Ваш відгук:</label>
+                        {{ form.text }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Оцінка:</label>
+                        {{ form.rating }}
+                    </div>
+
+
+                    <button class="btn btn-primary">Опублікувати</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], textarea');
+        inputs.forEach(input => {
+            input.classList.add('form-control');
+            input.style.backgroundColor = "#222b35";
+            input.style.color = "white";
+            input.style.border = "1px solid #4a5965";
+        });
+    });
+
+
+    function addToFavorites(gameId) {
+        fetch(`/ajax/favorites/add/${gameId}`)
+            .then(response => response.json())
+            .then(data => {
+                alert(`Гру додано до списку бажаного! (Всього: ${data.favorites_count})`);
+            });
+    }
+</script>
+
+
+
+
+<style>
+    body {
+        background-color: #1b2838;
+        color: #c7d5e0;
+    }
+
+
+    .steam-container {
+        color: #c7d5e0;
+        font-family: "Motiva Sans", Sans-serif;
+    }
+
+
+    h2,
+    h4,
+    h5 {
+        color: #ffffff;
+        font-family: "Motiva Sans", Sans-serif;
+        font-weight: 300;
+    }
+
+
+    .game-header-image {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        border-radius: 0;
+        margin-bottom: 10px;
+    }
+
+
+    .glance-details {
+        font-size: 13px;
+        color: #8f98a0;
+    }
+
+
+    .glance-details span {
+        color: #b0aeac;
+    }
+
+
+    .game_area_purchase_game {
+        background-color: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+        background: #00000033;
+        position: relative;
+        padding: 16px;
+        margin-bottom: 25px;
+        border-radius: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+
+    .game_area_purchase_game h1 {
+        font-size: 20px;
+        color: white;
+        margin: 0;
+    }
+
+
+    .game_purchase_action {
+        background-color: #000;
+        border-radius: 2px;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+        height: 40px;
+    }
+
+
+    .discount_block {
+        background: #4c6b22;
+        color: #beee11;
+        font-size: 22px;
+        padding: 0 8px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+    }
+
+
+    .price {
+        padding: 0 10px;
+        color: #c7d5e0;
+        font-size: 14px;
+        text-align: right;
+    }
+
+
+    .original-price {
+        color: #738895;
+        font-size: 11px;
+        text-decoration: line-through;
+    }
+
+
+    .final-price {
+        color: #c7d5e0;
+        font-size: 16px;
+    }
+
+
+    .btn-steam-green {
+        background: linear-gradient(to bottom, #a4d007 5%, #536904 95%);
+        border-radius: 2px;
+        border: none;
+        padding: 0 15px;
+        color: #d2efa9;
+        font-size: 15px;
+        text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+        height: 36px;
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+
+
+    .btn-steam-green:hover {
+        background: linear-gradient(to bottom, #b6e608 5%, #536904 95%);
+        color: white;
+    }
+
+
+    .form-control {
+        background-color: #222b35;
+        border: 1px solid #4a5965;
+        color: #d6d7d8;
+    }
+
+
+    .form-control:focus {
+        background-color: #2a3f5a;
+        color: white;
+        border-color: #67c1f5;
+        box-shadow: none;
+    }
+
+
+    .review_box {
+        background-color: #16202d;
+        border: 1px solid rgba(0, 0, 0, 0);
+    }
+
+
+    .carousel-inner {
+        background-color: #000;
+        border: 1px solid #1b2838;
+    }
+
+
+    .carousel-item img {
+        height: 400px;
+        object-fit: contain;
+        background-color: black;
+    }
+
+
+    .carousel-control-prev, .carousel-control-next {
+        width: 10%;
+        background-color: rgba(0,0,0,0.3);
+    }
+   
+    .carousel-control-prev:hover, .carousel-control-next:hover {
+        background-color: rgba(0,0,0,0.6);
+    }
+</style>
+
+
+{% endblock %}
+
+
+
+

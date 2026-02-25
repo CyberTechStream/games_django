@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container d-flex justify-content-center mt-5">
+    <div class="card text-center p-5">
+        <div class="mb-4">
+            <i class="fa-solid fa-circle-check"
+               style="font-size: 80px; color: #66c0f4;"></i>
+        </div>
+
+        <h2 class="mb-3">Оплата успішна!</h2>
+
+        <p class="text-light">Дякую за покупку! Гру додано до вашої бібліотеки</p>
+
+        <div class="d-flex justify-content-center mt-3 gap-3">
+            <a href="/" class="btn btn-outline-light">Повернутись в магазин</a>
+            <a href="{% url 'cart' %}" class="btn btn-outline-light">Переглянути кошик</a>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}

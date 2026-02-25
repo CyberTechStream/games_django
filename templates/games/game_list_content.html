@@ -1,0 +1,73 @@
+<div class="d-flex flex-column gap-3" id="games-list">
+    {% for game in page_obj %}
+    <a href="{% url 'game_detail' game.id %}" class="text-decoration-none text-white">
+        <div class="steam-card d-flex align-items-center p-2 mb-2">
+           
+            <div class="steam-card-img me-3">
+                {% if game.image %}
+                    <img src="{{ game.image.url }}" alt="{{ game.title }}">
+                {% else %}
+                    <div class="bg-secondary d-flex align-items-center justify-content-center" style="width: 120px; height: 70px;">
+                        <small>No Image</small>
+                    </div>
+                {% endif %}
+
+
+            </div>
+
+
+            <div class="steam-card-info flex-grow-1">
+                <h5 class="m-0 mb-1 font-weight-bold">{{ game.title }}</h5>
+                <div class="text-muted small">
+                    <span class="badge bg-secondary">{{ game.genre }}</span>
+                    <span class="text-secondary">{{ game.release_year }}</span>
+                </div>
+            </div>
+
+
+            <div class="steam-card-price d-flex align-items-center">
+                <!-- Дописати знижку -->
+                {% if game.discount > 0 %}
+                    <div class="discount-badge me-2">-{{ game.discount }}%</div>
+                    <div class="price-container text-end">
+                        <div class="text-light text-decoration-line-through small"> {{ game.price }} грн.</div>
+                        <div class="text-success fw-bold">{{ game.sell_price|floatformat:2 }} грн.</div>
+                    </div>
+                {% else %}
+                    <div class="text-white fw-bold">
+                        {% if game.price == 0 %}
+                            Free
+                        {% else %}
+                            {{ game.price }} грн
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+           
+        </div>
+    </a>
+    {% empty %}
+        <p class="text-center mt-5">Ігри не знайдено</p>
+    {% endfor %}
+</div>
+
+
+<div class="pagination mt-4 d-flex justify-content-center">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1&q={{ query }}&genre={{ selected_genre }}" class="btn btn-outline-secondary btn-sm ajax-link">&laquo; Перша</a>
+            <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&genre={{ selected_genre }}" class="btn btn-outline-secondary btn-sm ajax-link">Попередня</a>
+        {% endif %}
+
+
+        <span class="current mx-2 text-white">
+            Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}
+        </span>
+
+
+         {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&genre={{ selected_genre }}" class="btn btn-outline-secondary btn-sm ajax-link">Наступна</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&q={{ query }}&genre={{ selected_genre }}" class="btn btn-outline-secondary btn-sm ajax-link">Остання &raquo;</a>
+        {% endif %}
+    </span>
+</div>

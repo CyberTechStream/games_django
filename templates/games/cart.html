@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <h2>Ваш кошик</h2>
+    <hr>
+
+    {% if games %}
+        {% for game in games %}
+            <div class="d-flex justify-content-between align-items-center p-3 mb-3" 
+            style="background:#16202d; border:1px solid #2a475e;">
+
+            <div>
+                <h5 class="mb-1">{{ game.title }}</h5>
+                <small class="text-muted">{{ game.genre }}</small>
+            </div>
+
+            <div class="text-end">
+                <div>{{ game.sell_price|floatformat:2 }} грн.</div>
+                <a href="{% url 'remove_from_cart' game.id %}" class="btn btn-sm btn-danger mt-1">Видалити</a>
+            </div>
+
+            </div>
+        {% endfor %}
+        <hr>
+        <h4 class="text-end">Разом: {{ total|floatformat:2 }} грн.</h4>
+        <div class="text-end mt-3">
+            <a href="{% url 'stripe_checkout' %}" class="btn btn-success btn-lg">Оплатити</a>
+        </div>
+
+    {% else %}
+        <p class="text-light">Кошик порожній</p>
+    {% endif %}
+
+
+</div>
+
+{% endblock %}
+
+

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h4 class="text-white mb-3"><i class="fa-solid fa-pen-to-square me-2"></i>Редагування профілю</h4>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label text-white">Аватар</label>
+                    {{ form.avatar }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-white">Нікнейм</label>
+                    {{ form.nickname }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-white">Про себе</label>
+                    {{ form.bio }}
+                </div>
+                <button type="submit" class="btn btn-success w-100">Зберегти</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

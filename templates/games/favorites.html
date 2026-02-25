@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row">
+    {% for game in games %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5>{{ game.title }}</h5>
+                <p>{{ game.genre }}</p>
+
+                <a href="{% url 'game_detail' game.id %}" class="btn btn-primary">More</a>
+
+                <a href="{% url 'remove_from_favorites' game.id %}" class="btn btn-danger btn-sm">Delete</a>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}
+
+

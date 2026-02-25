@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3>Чат з {{ friend.profile.nickname }}</h3>
+
+<div class="card p-3 mb-3" id="chat-box" style="height: 400px; overflow-y: auto;">
+    {% for msg in messages %}
+        {% if msg.sender == user %}
+            <div class="text-end mb-2">
+                <span class="badge bg-primary">{{ msg.text }}</span>
+            </div>
+        {% else %}
+            <div class="text-start mb-2">
+                <span class="badge bg-secondary">{{ msg.text }}</span>
+            </div>
+        {% endif %}
+
+    {% endfor %}
+</div>
+
+<form id="chat-form">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="text"
+            id="message-input"
+            class="form-control"
+            placeholder="Написати повідомлення..."
+            required>
+        <button class="btn btn-nav">➤</button>
+    </div>
+
+</form>
+
+<script>
+    // let last_time = null;
+    // Якщо повідомлення є, беремо час останнього у форматі ISO. Якщо ні - залишаємо порожнім.
+    let last_time = "{% if messages %}{{ messages.last.timestamp|date:'c' }}{% else %}{% endif %}";
+
+    const chatBox = document.getElementById('chat-box')
+    const form = document.getElementById('chat-form')
+    const input = document.getElementById('message-input')
+
+    // site.com/fetch_messages/5/?last_time=....
+    function fetchMessages() {
+        let url = "{% url 'fetch_messages' friend.id %}"
+
+        if (last_time) {
+            url += "?last_time=" + encodeURIComponent(last_time)
+        }
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                data.messages.forEach(msg => {
+                    const div = document.createElement("div")
+                    div.classList.add("mb-2")
+
+                    if(msg.sender === "{{ user.username }}") {
+                        div.classList.add("text-end")
+                        div.innerHTML = `<span class="badge bg-primary">${msg.text}</span>`
+                    }else{
+                        div.classList.add("text-start")
+                        div.innerHTML = `<span class="badge bg-secondary">${msg.text}</span>`
+                    }
+
+                    chatBox.appendChild(div)
+                    last_time = msg.timestamp
+                })
+                
+                if (data.messages.length > 0) {
+                    chatBox.scrollTop = chatBox.scrollHeight
+                }
+            })
+    }
+
+form.addEventListener("submit", function(e) {
+    e.preventDefault()
+
+    fetch("", {
+       method: "POST",
+       headers: {
+           "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+       },
+       body: new URLSearchParams({
+           text: input.value
+       })
+    }).then(() => {
+        input.value = ""
+        fetchMessages()
+    })
+})
+
+setInterval(fetchMessages, 2000)
+
+</script>
+
+{% endblock %}
+
+
