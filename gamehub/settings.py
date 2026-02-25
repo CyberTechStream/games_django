@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -131,3 +132,15 @@ STRIPE_SECRET_KEY = 'sk_test_51Ss9ju2IjldB7av8KQPDdH4IaKKmUmUO6gscUv388Fby2bwapU
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'game_list'
 
+
+
+
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    # ...
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
