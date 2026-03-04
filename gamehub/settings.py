@@ -125,12 +125,13 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {
-    # ...
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
 
 
 
@@ -144,6 +145,7 @@ STRIPE_SECRET_KEY = 'sk_test_51Ss9ju2IjldB7av8KQPDdH4IaKKmUmUO6gscUv388Fby2bwapU
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'game_list'
+
 
 
 
